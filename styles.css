@@ -104,10 +104,15 @@ body.loaded .crt-frame {
 .chrome-path { margin-left: 10px; color: var(--text-dim); }
  
 .title-block {
-  padding: 24px 28px;
+  padding: 16px 18px;
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: 0 0 var(--radius) var(--radius);
+}
+@media (min-width: 768px) {
+  .title-block {
+    padding: 24px 28px;
+  }
 }
 .title-block h1 {
   font-family: 'Outfit', var(--font-sans);
@@ -156,12 +161,17 @@ body.loaded .crt-frame {
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  padding: 22px;
+  padding: 16px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
+@media (min-width: 768px) {
+  .block {
+    padding: 22px;
+  }
+}
 .block:hover {
-  border-color: rgba(255, 255, 255, 0.12);
+  border-color: var(--cyan);
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.22);
 }
 
@@ -358,9 +368,18 @@ input[type="number"]:focus {
   background: var(--surface-2);
 }
 
-.playback { display: flex; align-items: center; gap: 10px; }
+.playback {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-grow: 1;
+  justify-content: space-between;
+}
 .playback input[type="range"] {
-  width: 160px;
+  flex-grow: 1;
+  width: auto;
+  min-width: 80px;
+  max-width: 160px;
   accent-color: var(--amber);
   background: var(--surface-2);
   height: 6px;
@@ -526,6 +545,13 @@ input[type="number"]:focus {
   border-radius: 6px;
   transition: all 0.3s ease;
 }
+@media (max-width: 480px) {
+  .compare-row {
+    grid-template-columns: 85px 1fr 50px;
+    gap: 8px;
+    padding: 6px 6px;
+  }
+}
 .compare-row:hover {
   background: var(--surface-2);
 }
@@ -577,6 +603,16 @@ input[type="number"]:focus {
   flex-direction: column;
   justify-content: center;
   flex-grow: 1;
+  width: 100%;
+}
+@media (max-width: 768px) {
+  .gantt-main {
+    overflow-x: auto;
+    padding-bottom: 8px;
+  }
+  .ruler, .gantt-track {
+    min-width: 500px;
+  }
 }
 .cpu-card {
   background: var(--surface);
