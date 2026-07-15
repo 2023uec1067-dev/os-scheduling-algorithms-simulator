@@ -791,6 +791,8 @@ input[type="number"]:focus {
   z-index: 99999;
   overflow: hidden;
   transition: opacity 0.8s cubic-bezier(0.77, 0, 0.175, 1), visibility 0.8s;
+  transform: translate3d(0, 0, 0);
+  -webkit-transform: translate3d(0, 0, 0);
 }
 #loader.fade-out {
   opacity: 0;
@@ -828,6 +830,8 @@ input[type="number"]:focus {
   align-items: center;
   gap: 30px;
   perspective: 800px;
+  transform: translate3d(0, 0, 0);
+  -webkit-transform: translate3d(0, 0, 0);
 }
 
 /* 3D letters from medhatalkadri.com */
@@ -947,6 +951,8 @@ input[type="number"]:focus {
   opacity: 0;
   visibility: hidden;
   transition: opacity 1s cubic-bezier(0.16, 1, 0.3, 1), visibility 1s;
+  transform: translate3d(0, 0, 0);
+  -webkit-transform: translate3d(0, 0, 0);
 }
 
 #story-stage.active {
@@ -984,6 +990,8 @@ input[type="number"]:focus {
   height: 260px;
   transform-style: preserve-3d;
   position: relative;
+  transform: translate3d(0, 0, 0);
+  -webkit-transform: translate3d(0, 0, 0);
 }
 
 .pc-screen.show .pc-wrapper {
@@ -1262,4 +1270,10 @@ body.light-theme .cpu-stat-row {
 }
 body.light-theme .footer {
   color: #475569;
+}
+
+@media (max-width: 500px) {
+  .chrome-path {
+    display: none;
+  }
 }
