@@ -6,10 +6,58 @@
 <title>sched — CPU Scheduling Simulator</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+
+<div id="loader">
+  <div class="loader-bg"></div>
+  <div class="loader-content">
+    <div class="loader-3d-text">
+      <div class="letter"><span>O</span></div>
+      <div class="letter"><span>S</span></div>
+      <div class="letter"><span>-</span></div>
+      <div class="letter"><span>S</span></div>
+      <div class="letter"><span>C</span></div>
+      <div class="letter"><span>H</span></div>
+      <div class="letter"><span>E</span></div>
+      <div class="letter"><span>D</span></div>
+      <div class="letter"><span>U</span></div>
+      <div class="letter"><span>L</span></div>
+      <div class="letter"><span>E</span></div>
+      <div class="letter"><span>R</span></div>
+    </div>
+    <div class="loader-bar-wrap">
+      <div class="loader-bar" id="loaderBar"></div>
+    </div>
+    <div class="loader-status" id="loaderStatus">0% SYSTEM READY</div>
+  </div>
+</div>
+
+<div id="story-stage">
+  <div class="pc-screen">
+    <div class="pc-wrapper">
+      <div class="pc-case">
+        <div class="pc-face front">
+          <div class="pc-bezel">
+            <div class="pc-inner-screen">
+              <div class="pc-glow-grid"></div>
+              <div class="pc-terminal-line">OS_CORE_INIT...</div>
+            </div>
+          </div>
+        </div>
+        <div class="pc-face back"></div>
+        <div class="pc-face left"></div>
+        <div class="pc-face right"></div>
+        <div class="pc-face top"></div>
+        <div class="pc-base">
+          <div class="pc-keyboard"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
 <div class="crt-frame">
 
@@ -17,9 +65,12 @@
     <div class="chrome">
       <span class="dot d1"></span><span class="dot d2"></span><span class="dot d3"></span>
       <span class="chrome-path">sched@mnit:~$</span>
+      <button id="theme-toggle" class="theme-toggle-btn" title="Toggle Theme">
+        <span class="theme-icon">🌙</span> <span class="theme-label">Dark Theme</span>
+      </button>
     </div>
     <div class="title-block">
-      <h1><span class="prompt"></span> simulate <span class="cursor-blink">▌</span></h1>
+      <h1><span class="prompt"></span> simulate</h1>
       <p class="subtitle">A CPU scheduling algorithm simulator FCFS, Round Robin, SPN, SRT, HRRN, Feedback &amp; Aging, worked out one tick at a time.</p>
     </div>
   </header>
@@ -44,6 +95,7 @@
         <div class="row-actions">
           <button class="btn ghost" id="addRowBtn" type="button">+ add process</button>
           <button class="btn ghost" id="resetProcsBtn" type="button">reset example</button>
+          <button class="btn ghost" id="randomProcsBtn" type="button">🎲 randomize</button>
         </div>
       </section>
 
@@ -101,11 +153,41 @@
           <p>&gt; no run yet. set up your processes on the left, pick an algorithm, and hit <strong>run</strong>.</p>
         </div>
         <div id="ganttWrap" style="display:none">
-          <div class="ruler" id="ruler"></div>
-          <div class="gantt-track" id="ganttTrack"></div>
-          <div class="ready-queue">
-            <span class="rq-label">ready queue</span>
-            <div class="rq-chips" id="readyChips"></div>
+          <div class="gantt-container">
+            <div class="gantt-main">
+              <div class="ruler" id="ruler"></div>
+              <div class="gantt-track" id="ganttTrack"></div>
+              <div class="ready-queue">
+                <span class="rq-label">ready queue</span>
+                <div class="rq-chips" id="readyChips"></div>
+              </div>
+            </div>
+            <div class="cpu-card" id="cpuCard">
+              <div class="cpu-header">cpu core</div>
+              <div class="cpu-core-visual">
+                <div class="cpu-circle-wrap">
+                  <svg class="cpu-svg" viewBox="0 0 100 100">
+                    <circle class="cpu-bg-circle" cx="50" cy="50" r="42"></circle>
+                    <circle class="cpu-progress-circle" id="cpuProgressCircle" cx="50" cy="50" r="42" stroke-dasharray="264" stroke-dashoffset="264"></circle>
+                  </svg>
+                  <div class="cpu-inner-content">
+                    <span class="cpu-process-id" id="cpuProcessId">IDLE</span>
+                    <span class="cpu-percent" id="cpuPercent">0%</span>
+                  </div>
+                </div>
+              </div>
+              <div class="cpu-info">
+                <div class="cpu-status-badge" id="cpuStatusBadge">idle</div>
+                <div class="cpu-stat-row">
+                  <span class="label">remaining:</span>
+                  <span class="val" id="cpuRemainingVal">--</span>
+                </div>
+                <div class="cpu-stat-row">
+                  <span class="label">time slice:</span>
+                  <span class="val" id="cpuSliceVal">--</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>

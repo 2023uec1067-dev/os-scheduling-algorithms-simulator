@@ -9,8 +9,8 @@
     SPN: 'Shortest Process Next: whenever the CPU frees up, the waiting process with the smallest total burst runs next, to completion. Optimal average waiting time — if you know burst times in advance.',
     SRT: 'Shortest Remaining Time: the preemptive version of SPN. A new arrival with a shorter remaining time bumps whatever is currently running.',
     HRRN: 'Highest Response Ratio Next: response ratio = (waiting time + burst) / burst. Long-waiting processes age into priority, so nothing starves the way it can under SPN.',
-    FB: 'Multilevel Feedback Queue: new processes start in the top queue with a small quantum. Anyone who doesn\u2019t finish in time gets demoted to a lower-priority queue with a longer quantum — CPU-bound jobs sink, short jobs stay fast.',
-    AGING: 'Priority scheduling where every tick spent waiting slowly improves a process\u2019s effective priority, guaranteeing even the lowest-priority process eventually runs.',
+    FB: 'Multilevel Feedback Queue: new processes start in the top queue with a small quantum. Anyone who doesn’t finish in time gets demoted to a lower-priority queue with a longer quantum — CPU-bound jobs sink, short jobs stay fast.',
+    AGING: 'Priority scheduling where every tick spent waiting slowly improves a process’s effective priority, guaranteeing even the lowest-priority process eventually runs.',
   };
 
   let processes = [];
@@ -32,7 +32,6 @@
   }
 
   function nextAutoId() {
-    // A, B, C ... Z, A2, B2 ...
     const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
     const round = Math.floor(idCounter / 26) + 1;
     const letter = letters[idCounter % 26];
@@ -42,6 +41,7 @@
 
   function colorFor(pid) {
     const idx = processes.findIndex(p => p.id === pid);
+    if (idx === -1) return 'var(--text-dim)';
     return COLORS[idx % COLORS.length];
   }
 
@@ -52,7 +52,7 @@
     processes.forEach((p, i) => {
       const tr = document.createElement('tr');
       tr.innerHTML = `
-        <td><span class="pid-chip"><span class="pid-dot" style="background:${COLORS[i % COLORS.length]}"></span>${p.id}</span></td>
+        <td><span class="pid-chip"><span class="pid-dot" style="background:${COLORS[i % COLORS.length]}; color:${COLORS[i % COLORS.length]}"></span>${p.id}</span></td>
         <td><input type="number" min="0" value="${p.arrival}" data-field="arrival" data-idx="${i}"></td>
         <td><input type="number" min="1" value="${p.burst}" data-field="burst" data-idx="${i}"></td>
         <td><input type="number" value="${p.priority}" data-field="priority" data-idx="${i}"></td>
@@ -93,6 +93,23 @@
     idCounter = processes.length;
     renderProcessTable();
   });
+
+  function randomizeProcesses() {
+    const count = Math.floor(Math.random() * 4) + 3; // 3 to 6
+    processes = [];
+    idCounter = 0;
+    for (let i = 0; i < count; i++) {
+      const id = nextAutoId();
+      const arrival = Math.floor(Math.random() * 10); // 0 to 9
+      const burst = Math.floor(Math.random() * 8) + 1; // 1 to 8
+      const priority = Math.floor(Math.random() * 8) + 1; // 1 to 8
+      processes.push({ id, arrival, burst, priority });
+    }
+    processes.sort((a, b) => a.arrival - b.arrival);
+    renderProcessTable();
+  }
+
+  document.getElementById('randomProcsBtn').addEventListener('click', randomizeProcesses);
 
   /* ---------------- algorithm selection ---------------- */
   const paramBlocks = { RR: document.getElementById('paramsRR'), FB: document.getElementById('paramsFB'), AGING: document.getElementById('paramsAging') };
@@ -137,6 +154,9 @@
     renderGantt(result);
     renderMetrics(result);
     setPlayhead(result.totalTime); // reveal fully by default
+
+    // Smooth scroll to Gantt visualizer
+    document.getElementById('ganttSection').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   });
 
   /* ---------------- gantt rendering ---------------- */
@@ -156,7 +176,11 @@
       const div = document.createElement('div');
       div.className = 'gantt-block' + (block.pid === null ? ' idle' : '');
       div.style.width = width + '%';
-      if (block.pid !== null) div.style.background = colorFor(block.pid);
+      if (block.pid !== null) {
+        const pColor = colorFor(block.pid);
+        div.style.background = pColor;
+        div.style.setProperty('--proc-color', pColor);
+      }
       div.textContent = block.pid === null ? '·' : block.pid;
       div.dataset.start = block.start;
       div.dataset.end = block.end;
@@ -164,7 +188,6 @@
       track.appendChild(div);
     });
 
-    // ruler ticks — cap label count so it doesn't overcrowd on long runs
     const step = Math.max(1, Math.ceil(total / 24));
     for (let t = 0; t <= total; t += step) {
       const span = document.createElement('span');
@@ -181,6 +204,88 @@
     document.getElementById('scrubber').value = total;
   }
 
+  function updateCpuVisualizer(t) {
+    const procIdEl = document.getElementById('cpuProcessId');
+    const percentEl = document.getElementById('cpuPercent');
+    const badgeEl = document.getElementById('cpuStatusBadge');
+    const remainingEl = document.getElementById('cpuRemainingVal');
+    const sliceEl = document.getElementById('cpuSliceVal');
+    const progressCircle = document.getElementById('cpuProgressCircle');
+    const cpuCard = document.getElementById('cpuCard');
+
+    if (!lastResult) {
+      procIdEl.textContent = 'IDLE';
+      procIdEl.style.color = 'var(--text-dim)';
+      percentEl.textContent = '0%';
+      badgeEl.textContent = 'idle';
+      badgeEl.className = 'cpu-status-badge idle';
+      remainingEl.textContent = '--';
+      sliceEl.textContent = '--';
+      progressCircle.style.strokeDashoffset = '264';
+      cpuCard.style.removeProperty('--proc-color');
+      return;
+    }
+
+    const runningBlock = lastResult.gantt.find(b => t >= b.start && t < b.end);
+    const activePid = runningBlock ? runningBlock.pid : null;
+
+    if (activePid === null || t >= lastResult.totalTime) {
+      procIdEl.textContent = 'IDLE';
+      procIdEl.style.color = 'var(--text-dim)';
+      percentEl.textContent = '0%';
+      badgeEl.textContent = t >= lastResult.totalTime ? 'done' : 'idle';
+      badgeEl.className = 'cpu-status-badge idle';
+      remainingEl.textContent = '--';
+      sliceEl.textContent = '--';
+      progressCircle.style.strokeDashoffset = '264';
+      cpuCard.style.removeProperty('--proc-color');
+    } else {
+      const pColor = colorFor(activePid);
+      cpuCard.style.setProperty('--proc-color', pColor);
+      
+      procIdEl.textContent = activePid;
+      procIdEl.style.color = pColor;
+      
+      badgeEl.textContent = 'running';
+      badgeEl.className = 'cpu-status-badge running';
+
+      const procInfo = processes.find(p => p.id === activePid);
+      if (procInfo) {
+        let executedProcTicks = 0;
+        lastResult.gantt.forEach(b => {
+          if (b.pid === activePid) {
+            if (t >= b.end) {
+              executedProcTicks += (b.end - b.start);
+            } else if (t >= b.start && t < b.end) {
+              executedProcTicks += (t - b.start);
+            }
+          }
+        });
+        
+        const currentRemaining = procInfo.burst - executedProcTicks;
+        const progressPercent = Math.min(100, Math.round((executedProcTicks / procInfo.burst) * 100));
+        
+        percentEl.textContent = progressPercent + '%';
+        remainingEl.textContent = currentRemaining + ' / ' + procInfo.burst;
+        
+        const offset = 264 - (progressPercent / 100) * 264;
+        progressCircle.style.strokeDashoffset = offset;
+
+        if (currentAlgo === 'RR') {
+          const quantum = parseInt(document.getElementById('quantumInput').value, 10) || 2;
+          const timeInCurrentSlice = t - runningBlock.start;
+          sliceEl.textContent = `${timeInCurrentSlice + 1} / ${quantum}`;
+        } else if (currentAlgo === 'FB') {
+          const timeInCurrentSlice = t - runningBlock.start;
+          const qLimit = runningBlock.end - runningBlock.start;
+          sliceEl.textContent = `${timeInCurrentSlice + 1} / ${qLimit}`;
+        } else {
+          sliceEl.textContent = 'non-preempt';
+        }
+      }
+    }
+  }
+
   function setPlayhead(t) {
     if (!lastResult) return;
     playhead = Math.max(0, Math.min(t, lastResult.totalTime));
@@ -194,6 +299,7 @@
     });
 
     renderReadyQueue(playhead);
+    updateCpuVisualizer(playhead);
   }
 
   function renderReadyQueue(t) {
@@ -258,7 +364,7 @@
     result.stats.forEach(s => {
       const tr = document.createElement('tr');
       tr.innerHTML = `
-        <td><span class="pid-chip"><span class="pid-dot" style="background:${colorFor(s.id)}"></span>${s.id}</span></td>
+        <td><span class="pid-chip"><span class="pid-dot" style="background:${colorFor(s.id)}; color:${colorFor(s.id)}"></span>${s.id}</span></td>
         <td>${s.arrival}</td><td>${s.burst}</td><td>${s.completion}</td>
         <td>${s.turnaround}</td><td>${s.waiting}</td><td>${s.responseTime}</td>
       `;
@@ -283,11 +389,19 @@
       row.className = 'compare-row' + (key === bestKey ? ' best' : '');
       row.innerHTML = `
         <span class="algo-name">--${key.toLowerCase()}</span>
-        <div class="compare-bar-track"><div class="compare-bar" style="width:${(r.avg.waiting / maxWait * 100).toFixed(1)}%"></div></div>
+        <div class="compare-bar-track"><div class="compare-bar" data-width="${(r.avg.waiting / maxWait * 100).toFixed(1)}%"></div></div>
         <span class="val">${r.avg.waiting.toFixed(2)}</span>
       `;
       chart.appendChild(row);
     });
+
+    // Trigger transition animation in next frame
+    setTimeout(() => {
+      chart.querySelectorAll('.compare-bar').forEach(bar => {
+        bar.style.width = bar.dataset.width;
+      });
+    }, 50);
+
     document.getElementById('compareSection').style.display = 'block';
     document.getElementById('compareSection').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   });
@@ -298,4 +412,136 @@
   idCounter = processes.length;
   renderProcessTable();
   selectAlgo('FCFS');
+
+  // Bootup loader animation
+  (function runLoader() {
+    const loader = document.getElementById('loader');
+    const loaderBar = document.getElementById('loaderBar');
+    const loaderStatus = document.getElementById('loaderStatus');
+    if (!loader || !loaderBar || !loaderStatus) return;
+
+    let progress = 0;
+    const interval = setInterval(() => {
+      progress += Math.floor(Math.random() * 6) + 5;
+      if (progress >= 100) {
+        progress = 100;
+        clearInterval(interval);
+        loaderBar.style.width = '100%';
+        loaderStatus.textContent = '100% SYSTEM BOOTUP COMPLETE';
+        loader.classList.add('letters-static');
+        setTimeout(() => {
+          loader.classList.add('fade-out');
+          
+          const storyStage = document.getElementById('story-stage');
+          const pcScreen = document.querySelector('.pc-screen');
+          
+          if (storyStage && pcScreen) {
+            storyStage.classList.add('active');
+            
+            setTimeout(() => {
+              pcScreen.classList.add('show');
+              
+              setTimeout(() => {
+                storyStage.classList.add('fade-out');
+                document.body.classList.add('loaded');
+                
+                setTimeout(() => {
+                  storyStage.style.display = 'none';
+                }, 1000);
+              }, 2400);
+            }, 100);
+          } else {
+            document.body.classList.add('loaded');
+          }
+        }, 500);
+      } else {
+        loaderBar.style.width = progress + '%';
+        loaderStatus.textContent = progress + '% SYSTEM READY';
+      }
+    }, 80);
+  })();
+
+  // Background Matrix/Terminal Digital Rain Animation
+  (function initBgAnimation() {
+    const canvas = document.getElementById('bgCanvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    
+    let width = canvas.width = window.innerWidth;
+    let height = canvas.height = window.innerHeight;
+    
+    window.addEventListener('resize', () => {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+    });
+    
+    const fontSize = 14;
+    const columns = Math.floor(width / fontSize) + 1;
+    const yPositions = Array(columns).fill(0).map(() => Math.random() * -height);
+    
+    // Phosphorus matrix drop characters & CPU instructions
+    const words = ["010101", "FCFS", "SPN", "SRT", "HRRN", "RR", "FB", "CPU", "LOAD", "TICK", "EXEC", "IO", "MEM", "PID"];
+    const chars = "0101010101ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+    function draw() {
+      ctx.fillStyle = 'rgba(5, 4, 15, 0.06)';
+      ctx.fillRect(0, 0, width, height);
+      
+      ctx.fillStyle = 'rgba(0, 242, 254, 0.08)'; 
+      ctx.font = fontSize + 'px "JetBrains Mono", monospace';
+      
+      for (let i = 0; i < yPositions.length; i++) {
+        let text = "";
+        if (Math.random() > 0.96) {
+          text = words[Math.floor(Math.random() * words.length)];
+        } else {
+          text = chars[Math.floor(Math.random() * chars.length)];
+        }
+        
+        const x = i * fontSize;
+        const y = yPositions[i];
+        
+        ctx.fillText(text, x, y);
+        
+        if (y > height && Math.random() > 0.985) {
+          yPositions[i] = 0;
+        } else {
+          yPositions[i] = y + fontSize * (text.length > 1 ? 0.35 : 0.6);
+        }
+      }
+    }
+    
+    setInterval(draw, 45);
+  })();
+
+  // Light/Dark Theme Background Toggler
+  (function initThemeToggler() {
+    const themeToggle = document.getElementById('theme-toggle');
+    if (!themeToggle) return;
+    const themeIcon = themeToggle.querySelector('.theme-icon');
+    const themeLabel = themeToggle.querySelector('.theme-label');
+    
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    setTheme(savedTheme);
+    
+    themeToggle.addEventListener('click', () => {
+      const currentTheme = document.body.classList.contains('light-theme') ? 'light' : 'dark';
+      const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+      setTheme(newTheme);
+    });
+    
+    function setTheme(theme) {
+      if (theme === 'light') {
+        document.body.classList.add('light-theme');
+        themeIcon.textContent = '🌙';
+        themeLabel.textContent = 'Dark Theme';
+        localStorage.setItem('theme', 'light');
+      } else {
+        document.body.classList.remove('light-theme');
+        themeIcon.textContent = '☀️';
+        themeLabel.textContent = 'Light Theme';
+        localStorage.setItem('theme', 'dark');
+      }
+    }
+  })();
 })();
