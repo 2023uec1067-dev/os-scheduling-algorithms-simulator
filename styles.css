@@ -104,15 +104,10 @@ body.loaded .crt-frame {
 .chrome-path { margin-left: 10px; color: var(--text-dim); }
  
 .title-block {
-  padding: 16px 18px;
+  padding: 24px 28px;
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: 0 0 var(--radius) var(--radius);
-}
-@media (min-width: 768px) {
-  .title-block {
-    padding: 24px 28px;
-  }
 }
 .title-block h1 {
   font-family: 'Outfit', var(--font-sans);
@@ -161,19 +156,13 @@ body.loaded .crt-frame {
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  padding: 16px;
+  padding: 22px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
-  transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
-}
-@media (min-width: 768px) {
-  .block {
-    padding: 22px;
-  }
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 .block:hover {
-  border-color: var(--cyan);
-  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.25);
-  transform: translateY(-4px);
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.22);
 }
 
 .block-title {
@@ -215,10 +204,7 @@ tbody td {
   transition: background-color 0.2s ease;
 }
 tbody tr {
-  transition: all 0.25s cubic-bezier(0.165, 0.84, 0.44, 1);
-}
-tbody tr:hover {
-  transform: translateX(4px);
+  transition: all 0.3s ease;
 }
 tbody tr:hover td {
   background: rgba(255, 255, 255, 0.02);
@@ -271,7 +257,6 @@ input[type="number"]:focus {
 
 /* ---------------- buttons ---------------- */
 .btn {
-.btn {
   font-family: var(--font-mono);
   font-size: 12px;
   background: var(--surface-2);
@@ -280,7 +265,7 @@ input[type="number"]:focus {
   border-radius: var(--radius);
   padding: 10px 16px;
   cursor: pointer;
-  transition: all 0.25s cubic-bezier(0.165, 0.84, 0.44, 1);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -288,14 +273,10 @@ input[type="number"]:focus {
 }
 .btn:hover {
   border-color: var(--amber);
-  box-shadow: 0 4px 15px var(--amber-dim);
-  background: var(--surface-2);
-  transform: translateY(-2px);
-  filter: brightness(1.08);
+  box-shadow: 0 0 12px var(--amber-dim);
+  background: rgba(255, 159, 67, 0.05);
 }
-.btn:active {
-  transform: translateY(1px) scale(0.98);
-}
+.btn:active { transform: translateY(1.5px); }
 .btn:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
 .btn.ghost {
   background: transparent;
@@ -333,16 +314,12 @@ input[type="number"]:focus {
   padding: 8px 12px;
   border-radius: var(--radius);
   cursor: pointer;
-  transition: all 0.25s cubic-bezier(0.165, 0.84, 0.44, 1);
+  transition: all 0.2s ease;
 }
 .flag:hover {
   color: var(--text);
   border-color: rgba(255, 255, 255, 0.2);
   background: rgba(255, 255, 255, 0.02);
-  transform: translateY(-2px) scale(1.02);
-}
-.flag:active {
-  transform: translateY(0.5px) scale(0.98);
 }
 .flag.active {
   background: rgba(0, 242, 254, 0.08);
@@ -381,18 +358,9 @@ input[type="number"]:focus {
   background: var(--surface-2);
 }
 
-.playback {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-grow: 1;
-  justify-content: space-between;
-}
+.playback { display: flex; align-items: center; gap: 10px; }
 .playback input[type="range"] {
-  flex-grow: 1;
-  width: auto;
-  min-width: 80px;
-  max-width: 160px;
+  width: 160px;
   accent-color: var(--amber);
   background: var(--surface-2);
   height: 6px;
@@ -556,18 +524,10 @@ input[type="number"]:focus {
   gap: 12px;
   padding: 6px 10px;
   border-radius: 6px;
-  transition: all 0.25s cubic-bezier(0.165, 0.84, 0.44, 1);
-}
-@media (max-width: 480px) {
-  .compare-row {
-    grid-template-columns: 85px 1fr 50px;
-    gap: 8px;
-    padding: 6px 6px;
-  }
+  transition: all 0.3s ease;
 }
 .compare-row:hover {
   background: var(--surface-2);
-  transform: scale(1.01) translateX(2px);
 }
 .compare-row .algo-name { font-family: var(--font-mono); font-size: 13px; color: var(--text-dim); }
 .compare-bar-track { height: 18px; background: var(--surface-2); border-radius: 4px; overflow: hidden; border: 1px solid var(--line); }
@@ -617,16 +577,6 @@ input[type="number"]:focus {
   flex-direction: column;
   justify-content: center;
   flex-grow: 1;
-  width: 100%;
-}
-@media (max-width: 768px) {
-  .gantt-main {
-    overflow-x: auto;
-    padding-bottom: 8px;
-  }
-  .ruler, .gantt-track {
-    min-width: 500px;
-  }
 }
 .cpu-card {
   background: var(--surface);
@@ -638,12 +588,7 @@ input[type="number"]:focus {
   align-items: center;
   justify-content: space-between;
   box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.01), 0 4px 24px rgba(0, 0, 0, 0.25);
-  transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
-}
-.cpu-card:hover {
-  transform: translateY(-4px);
-  border-color: var(--cyan);
-  box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.01), 0 12px 32px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
 }
 .cpu-header {
   font-family: var(--font-mono);
@@ -791,8 +736,6 @@ input[type="number"]:focus {
   z-index: 99999;
   overflow: hidden;
   transition: opacity 0.8s cubic-bezier(0.77, 0, 0.175, 1), visibility 0.8s;
-  transform: translate3d(0, 0, 0);
-  -webkit-transform: translate3d(0, 0, 0);
 }
 #loader.fade-out {
   opacity: 0;
@@ -830,8 +773,6 @@ input[type="number"]:focus {
   align-items: center;
   gap: 30px;
   perspective: 800px;
-  transform: translate3d(0, 0, 0);
-  -webkit-transform: translate3d(0, 0, 0);
 }
 
 /* 3D letters from medhatalkadri.com */
@@ -951,8 +892,6 @@ input[type="number"]:focus {
   opacity: 0;
   visibility: hidden;
   transition: opacity 1s cubic-bezier(0.16, 1, 0.3, 1), visibility 1s;
-  transform: translate3d(0, 0, 0);
-  -webkit-transform: translate3d(0, 0, 0);
 }
 
 #story-stage.active {
@@ -990,8 +929,6 @@ input[type="number"]:focus {
   height: 260px;
   transform-style: preserve-3d;
   position: relative;
-  transform: translate3d(0, 0, 0);
-  -webkit-transform: translate3d(0, 0, 0);
 }
 
 .pc-screen.show .pc-wrapper {
@@ -1270,10 +1207,4 @@ body.light-theme .cpu-stat-row {
 }
 body.light-theme .footer {
   color: #475569;
-}
-
-@media (max-width: 500px) {
-  .chrome-path {
-    display: none;
-  }
 }
