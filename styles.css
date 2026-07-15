@@ -163,7 +163,7 @@ body.loaded .crt-frame {
   border-radius: var(--radius);
   padding: 16px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
 }
 @media (min-width: 768px) {
   .block {
@@ -172,7 +172,8 @@ body.loaded .crt-frame {
 }
 .block:hover {
   border-color: var(--cyan);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.22);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.25);
+  transform: translateY(-4px);
 }
 
 .block-title {
@@ -214,7 +215,10 @@ tbody td {
   transition: background-color 0.2s ease;
 }
 tbody tr {
-  transition: all 0.3s ease;
+  transition: all 0.25s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+tbody tr:hover {
+  transform: translateX(4px);
 }
 tbody tr:hover td {
   background: rgba(255, 255, 255, 0.02);
@@ -267,6 +271,7 @@ input[type="number"]:focus {
 
 /* ---------------- buttons ---------------- */
 .btn {
+.btn {
   font-family: var(--font-mono);
   font-size: 12px;
   background: var(--surface-2);
@@ -275,7 +280,7 @@ input[type="number"]:focus {
   border-radius: var(--radius);
   padding: 10px 16px;
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.25s cubic-bezier(0.165, 0.84, 0.44, 1);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -283,10 +288,14 @@ input[type="number"]:focus {
 }
 .btn:hover {
   border-color: var(--amber);
-  box-shadow: 0 0 12px var(--amber-dim);
-  background: rgba(255, 159, 67, 0.05);
+  box-shadow: 0 4px 15px var(--amber-dim);
+  background: var(--surface-2);
+  transform: translateY(-2px);
+  filter: brightness(1.08);
 }
-.btn:active { transform: translateY(1.5px); }
+.btn:active {
+  transform: translateY(1px) scale(0.98);
+}
 .btn:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
 .btn.ghost {
   background: transparent;
@@ -324,12 +333,16 @@ input[type="number"]:focus {
   padding: 8px 12px;
   border-radius: var(--radius);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.25s cubic-bezier(0.165, 0.84, 0.44, 1);
 }
 .flag:hover {
   color: var(--text);
   border-color: rgba(255, 255, 255, 0.2);
   background: rgba(255, 255, 255, 0.02);
+  transform: translateY(-2px) scale(1.02);
+}
+.flag:active {
+  transform: translateY(0.5px) scale(0.98);
 }
 .flag.active {
   background: rgba(0, 242, 254, 0.08);
@@ -543,7 +556,7 @@ input[type="number"]:focus {
   gap: 12px;
   padding: 6px 10px;
   border-radius: 6px;
-  transition: all 0.3s ease;
+  transition: all 0.25s cubic-bezier(0.165, 0.84, 0.44, 1);
 }
 @media (max-width: 480px) {
   .compare-row {
@@ -554,6 +567,7 @@ input[type="number"]:focus {
 }
 .compare-row:hover {
   background: var(--surface-2);
+  transform: scale(1.01) translateX(2px);
 }
 .compare-row .algo-name { font-family: var(--font-mono); font-size: 13px; color: var(--text-dim); }
 .compare-bar-track { height: 18px; background: var(--surface-2); border-radius: 4px; overflow: hidden; border: 1px solid var(--line); }
@@ -624,7 +638,12 @@ input[type="number"]:focus {
   align-items: center;
   justify-content: space-between;
   box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.01), 0 4px 24px rgba(0, 0, 0, 0.25);
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+.cpu-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--cyan);
+  box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.01), 0 12px 32px rgba(0, 0, 0, 0.3);
 }
 .cpu-header {
   font-family: var(--font-mono);
